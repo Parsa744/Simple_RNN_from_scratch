@@ -77,9 +77,8 @@ class torchRNN(nn.Module):
 
 
 class seq2oneRNN(torchRNN):
-    def __init__(self, input_size, hidden_size, output_size, seq_length):
+    def __init__(self, input_size, hidden_size, output_size):
         super(seq2oneRNN, self).__init__(input_size, hidden_size, output_size)
-        self.seq_length = seq_length
 
     def forward_for_seq(self, input_seq, hidden):
         for input in input_seq:
@@ -121,6 +120,9 @@ class seq2seqRNN(torchRNN):
 
 
 def EncodeDecoderRNN(input_seq, hidden_for_Encoder, hidden_for_Decoder,hidden_size,recurrent_length,output_len):
+    print(len(input_seq),hidden_size,output_len)
+    print(hidden_for_Encoder,hidden_for_Decoder)
+    print(input_seq)
     Encoder = seq2oneRNN(len(input_seq),hidden_size,output_len)
     encoder_outputs, _ = Encoder.forward_for_seq(input_seq, hidden_for_Encoder)
     Decoder = one2oneRNN(len(encoder_outputs),hidden_size,output_len,recurrent_length)
@@ -138,7 +140,7 @@ def EncoderDecoderExample():
     x4 = [5,6,7]
     Y4 = [3,4,9,2]
     result = EncodeDecoderRNN(input_seq=[x1,x2,x3,x4],hidden_for_Encoder=H0,hidden_for_Decoder=H0,hidden_size=4,recurrent_length=4,output_len=4)
-
+    print(result)
 def seq2seqExaple():
     x1 = [1,2,2]
     Y1 = [0,2,0,4]
@@ -193,7 +195,7 @@ def seq2seqExaple():
             plt.show()
 
 def main():
-    seq2seqExaple()
+    EncoderDecoderExample()
     return 0
 
 
