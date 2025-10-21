@@ -1,13 +1,99 @@
-from models import torchRNN
+import numpy as np
+import matplotlib.pyplot as plt
+from models import torchRNN,seq2oneRNN
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import os
+import urllib.request
+from nltk.tokenize import sent_tokenize, word_tokenize
+import nltk
+from gensim.models import Word2Vec
+import random
 
 
+nltk.download('punkt_tab')
+
+def text2vec(text_path = 'shakespeare.txt',sent_size = 32):
+    text = open(text_path).read()
+    tokenize_sentences = sent_tokenize(text)
+    model = Word2Vec.load('word2vec.model')
+
+
+    text_vector_list = []
+
+    for sent in tokenize_sentences:
+        sent_list = []
+        word_list = word_tokenize(sent)
+        missing_word = random.choice(word_list)
+        index = word_list.index(missing_word)
+        word_list[index] = '<unk>'
+
+        for word_index in range(sent_size):
+            if word_index < len(word_tokenize(sent)):
+                word = word_list[word_index]
+            else:
+                word = '<pad>'
+            sent_list.append(model.wv[word])
+
+        text_vector_list.append([sent_list,model.wv[missing_word]])
+
+    #print(len(text_vector_list[3]))
+    return text_vector_list
 
 
 
 def main():
+
+    list_of_vectors = text2vec()
+    hid_size = 100
+
+    myRNN = seq2oneRNN(100,hid_size,100)
+    criterion = nn.MSELoss()
+    optimizer = optim.SGD(myRNN.parameters(), lr=0.1)
+    total_loss = 0
+    H0 = torch.zeros(hid_size, 1)  # Initialize as tensor with correct shape
+    loss_list = []
+    for sentence in list_of_vectors:
+        optimizer.zero_grad()
+        input = sentence[0]
+        missing_word = sentence[1]
+        pred, _ = myRNN.forward_for_seq(input_seq=input, hidden=H0)
+        missing_word = torch.FloatTensor(missing_word).unsqueeze(1)
+
+
+        loss = criterion(pred, missing_word)
+
+        #print(loss)
+        total_loss+=loss
+        loss_list.append(loss.item())
+
+        loss.backward()
+        optimizer.step()
+        pred_word = Word2Vec.load('word2vec.model').wv.most_similar(positive=[pred.squeeze().detach().numpy()], topn=1)
+        print('pred_word',pred_word)
+        print('missing_word',Word2Vec.load('word2vec.model').wv.most_similar(positive=[missing_word.squeeze().detach().numpy()], topn=1))
+    plt.ylabel('loss')
+    plt.show()
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+
+    '''def main():
+    text2List()
+
+
+
     x1 = [1,2,2]
     Y1 = [0,2,0,4]
     H0 = [0,0,0,0]
@@ -50,8 +136,4 @@ def main():
     loss.backward()
     optimizer.step()
     print('loss',loss)
-
-
-
-if __name__ == "__main__":
-    main()
+'''
