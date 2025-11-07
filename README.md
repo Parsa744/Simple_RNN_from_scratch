@@ -26,4 +26,4 @@ seq2seqRNN
 
 
 install:
-  @ pip install torch numpy
+  '' pip install torch numpy ''
