@@ -23,3 +23,7 @@ one2oneRNN
 
 seq2seqRNN
 -  Maps an input sequence to an output sequence (encoder-like behavior).
+
+
+install:
+  # pip install torch numpy
