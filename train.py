@@ -52,9 +52,9 @@ def main():
     criterion = nn.MSELoss()
     optimizer = optim.SGD(myRNN.parameters(), lr=0.1)
     total_loss = 0
-    H0 = torch.zeros(hid_size, 1)  # Initialize as tensor with correct shape
     loss_list = []
     for sentence in list_of_vectors:
+        H0 = torch.zeros(hid_size, 1)  # Initialize as tensor with correct shape
         optimizer.zero_grad()
         input = sentence[0]
         missing_word = sentence[1]
