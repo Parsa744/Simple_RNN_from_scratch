@@ -27,3 +27,13 @@ seq2seqRNN
 
 install:
   ``` pip install torch numpy ```
+
+basic use:
+ ```
+  rnn = torchRNN(input_size=10, hidden_size=20, output_size=5)
+  
+  input = torch.randn(10, 1)
+  hidden = torch.zeros(20, 1)
+  
+  output, next_hidden = rnn(input, hidden)
+ ```
